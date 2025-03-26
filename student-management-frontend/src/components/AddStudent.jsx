@@ -1,13 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "../api/axios";
 
-const AddStudent = ({ onStudentAdded }) => {
+const AddStudent = ({ onStudentAdded, editStudent, setEditStudent }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     age: "",
     course: "",
   });
+
+  // ✅ Populate form if editStudent changes
+  useEffect(() => {
+    if (editStudent) {
+      setFormData({
+        name: editStudent.name,
+        email: editStudent.email,
+        age: editStudent.age,
+        course: editStudent.course,
+      });
+    } else {
+      setFormData({ name: "", email: "", age: "", course: "" });
+    }
+  }, [editStudent]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,14 +34,21 @@ const AddStudent = ({ onStudentAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("students/", formData);
-      alert("✅ Student Added Successfully");
+      if (editStudent) {
+        // ✅ Update student logic
+        await axios.put(`students/${editStudent.id}/`, formData);
+        alert("✅ Student Updated Successfully");
+        setEditStudent(null); // Clear edit mode
+      } else {
+        // ✅ Add new student
+        await axios.post("students/", formData);
+        alert("✅ Student Added Successfully");
+      }
       setFormData({ name: "", email: "", age: "", course: "" });
-      // Refresh the student list
-      if (onStudentAdded) onStudentAdded();
+      if (onStudentAdded) onStudentAdded(); // Refresh the list
     } catch (error) {
-      console.error("❌ Error adding student:", error.response?.data);
-      alert("Failed to add student. Please try again.");
+      console.error("❌ Error:", error.response?.data);
+      alert("Failed! Please try again.");
     }
   };
 
@@ -35,9 +56,7 @@ const AddStudent = ({ onStudentAdded }) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       {["name", "email", "age", "course"].map((field, index) => (
         <div key={index}>
-          <label className="block mb-1 font-semibold">
-            {field.charAt(0).toUpperCase() + field.slice(1)}
-          </label>
+          <label className="block mb-1 font-semibold capitalize">{field}</label>
           <input
             type={
               field === "age" ? "number" : field === "email" ? "email" : "text"
@@ -55,7 +74,7 @@ const AddStudent = ({ onStudentAdded }) => {
         type="submit"
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
       >
-        Add Student
+        {editStudent ? "Update Student" : "Add Student"}
       </button>
     </form>
   );

@@ -1,20 +1,24 @@
 import React from "react";
 import axios from "../api/axios";
 
-const StudentList = ({ students, setStudents }) => {
+const StudentList = ({ students, setStudents, setEditStudent }) => {
   // ✅ Delete Student Function
   const handleDelete = (id) => {
     axios
       .delete(`students/${id}/`)
       .then(() => {
-        alert("Student deleted successfully ✅");
-        // ✅ Remove student from the local state without re-fetch
-        setStudents((prevStudents) => prevStudents.filter((s) => s.id !== id));
+        alert("✅ Student deleted successfully");
+        setStudents((prev) => prev.filter((s) => s.id !== id));
       })
       .catch((err) => {
         console.error(err);
-        alert("Failed to delete student ❌");
+        alert("❌ Failed to delete student");
       });
+  };
+
+  // ✅ Edit Button Function
+  const handleEditClick = (student) => {
+    setEditStudent(student); // Pass student data to AddStudent
   };
 
   return (
@@ -45,13 +49,22 @@ const StudentList = ({ students, setStudents }) => {
               <p className="text-gray-700">
                 <span className="font-semibold">Course:</span> {student.course}
               </p>
-              {/* ✅ Delete Button */}
-              <button
-                onClick={() => handleDelete(student.id)}
-                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
-              >
-                Delete
-              </button>
+
+              {/* ✅ Action Buttons */}
+              <div className="flex gap-4 mt-4">
+                <button
+                  onClick={() => handleEditClick(student)}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(student.id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
