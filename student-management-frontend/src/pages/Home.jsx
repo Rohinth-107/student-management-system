@@ -65,6 +65,7 @@ const Home = () => {
             <h2 className="text-3xl font-bold mb-6 text-gray-800">
               📋 Student List
             </h2>
+            
             <StudentList
               students={students}
               setStudents={setStudents}
